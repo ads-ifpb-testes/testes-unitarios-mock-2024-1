@@ -1,5 +1,7 @@
 import GerenciadorFilmes from "./gerenciador.filmes";
 
+jest.mock("./repositorio.filmes");
+
 describe("Inserção de filmes", () => {
   beforeAll(() => {});
 
@@ -7,6 +9,7 @@ describe("Inserção de filmes", () => {
 
   beforeEach(() => {
     gerenciador = new GerenciadorFilmes();
+    gerenciador.repositorioFilmes.todos.mockReturnValue([]);
   });
 
   // Teste 1
@@ -17,7 +20,8 @@ describe("Inserção de filmes", () => {
       genero: ["Ficção"],
     };
     gerenciador.inserir(filme);
-    expect(gerenciador.filmes.length).toBe(1);
+    gerenciador.repositorioFilmes.total.mockReturnValue(1);
+    expect(gerenciador.total()).toBe(1);
   });
 
   // Teste 2
@@ -49,7 +53,20 @@ describe("Inserção de filmes", () => {
     expect(() => gerenciador.inserir(filme)).toThrow(Error);
   });
 
-  afterEach(() => {});
+  // Teste 5
+  test("Não deve permitir filmes repetidos", () => {
+    const filmeRepetido = {
+      nome: "Duna",
+      ano: 2021,
+      genero: ["Ficção", "Drama"],
+    };
+    gerenciador.repositorioFilmes.todos.mockReturnValue([filmeRepetido]);
+    expect(() => gerenciador.inserir(filmeRepetido)).toThrow(Error);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   afterAll(() => {});
 });
